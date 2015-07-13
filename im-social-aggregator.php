@@ -4,7 +4,7 @@
 Plugin Name: Social Media Aggregator
 Plugin URI: http://www.invokemedia.com
 Description: Aggregates social feeds from Facebook, Twitter, Instagram, YouTube, Vimeo, and RSS.
-Version: 1.2
+Version: 1.3
 Author: Invoke Media
 Author URI: http://www.invokemedia.com
 */
@@ -727,10 +727,15 @@ class IM_Aggregator {
 
 			foreach ($res['data'] as $post) {
 
-				// $title = wp_trim_words($this->validateString('(' . $post['source_type'] . ') ' . $post['message']), $num_words = 12, $more = '...');
 
-				$title = empty($post['message']) ? $section['title'] . ' Post (' . date('M j, y', $post['date_created']) . ')' : $post['message'];
-				$description = empty($post['description']) ? $title : $post['description'];
+				if (empty($post['message'])){
+					$title = empty($post['message']) ? $section['title'] . ' Post (' . date('M j, y', $post['date_created']) . ')' : $post['message'];
+				} else {
+					$title = wp_trim_words($this->validateString('(' . $section['title'] . ') ' . $post['message']), $num_words = 8, $more = '...');
+				}
+
+				// $description = empty($post['description']) ? $title : $post['description'];
+				$description = empty($post['description']) ? $post['message'] : $post['description'];
 
 				$p = array(
 					'post_title' => $title,
@@ -839,7 +844,7 @@ class IM_Aggregator {
 	 *
 	 * @return array
 	 */
-	protected function _get_feeds ($feeds) {
+	protected function _get_feeds ($feeds, $group=true, $posts_per_page=-1, $page=1) {
 
 		$data = array();
 
@@ -848,7 +853,8 @@ class IM_Aggregator {
 			'post_type' => $this->post_type,
 			'orderby' => 'date',
 			'order' => 'DESC',
-			'posts_per_page' => -1
+			'posts_per_page' => $posts_per_page,
+			'paged' => $page
 		);
 
 		if (!empty($feeds) && $feeds[0] != '') {
@@ -883,13 +889,18 @@ class IM_Aggregator {
 				'id' => $postId,
 				'source' => $term,
 				'title' => get_the_title(),
+				'date' => get_the_date(),
 				'message' => get_the_content(),
 				'picture' => get_post_meta($postId, 'sa_picture', true),
 				'link' => get_post_meta($postId, 'sa_link', true),
 				'author' => get_post_meta($postId, 'sa_author', true)
 			);
-
-			$data[$term][] = $item;
+			if($group){
+				$data[$term][] = $item;
+			} else {
+				// dont group by term
+				$data[] = $item;
+			}
 		}
 
 		wp_reset_query();
@@ -930,16 +941,35 @@ class IM_Aggregator {
 	 * an ajax call, otherwise returns a php array..
 	 *
 	 */
-	public function get_feeds ($feeds = array()) {
+	public function get_feeds ($feeds = array(), $grpup=true, $posts_per_page=-1, $page=1) {
 
 		if (empty($_GET['action'])) {
 			// php call..
-			return $this->_get_feeds($feeds);
+			return $this->_get_feeds($feeds, $grpup, $posts_per_page, $page);
 		}
 		else {
 			// ajax call..
+
+		 	if(@$_POST['posts_per_page']){
+		        $posts_per_page = $_POST['posts_per_page'];
+		    } else {
+		        $posts_per_page = -1;
+		    }
+
+		 	if(@$_POST['grpup']){
+		        $grpup = $_POST['grpup'];
+		    } else {
+		        $grpup = true;
+		    }
+
+		 	if(@$_POST['page']){
+		        $page = $_POST['page'];
+		    } else {
+		        $page = 1;
+		    }
+
 			if (!empty($_GET['feeds'])) $feeds = $_GET['feeds'];
-			$data = $this->_get_feeds($feeds);
+			$data = $this->_get_feeds($feeds, $grpup, $posts_per_page=-1, $page=1);
 
 			// generate the response..
 			$response = json_encode(array('success' => true, 'feeds' => $data));
