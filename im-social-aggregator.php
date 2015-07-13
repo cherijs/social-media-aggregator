@@ -4,7 +4,7 @@
 Plugin Name: Social Media Aggregator
 Plugin URI: http://www.invokemedia.com
 Description: Aggregates social feeds from Facebook, Twitter, Instagram, YouTube, Vimeo, and RSS.
-Version: 1.4
+Version: 1.5
 Author: Invoke Media
 Author URI: http://www.invokemedia.com
 */
@@ -251,6 +251,22 @@ class IM_Aggregator {
 			'class' => ''
 		);
 
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'facebook_page',
+			'section' => $this->prefix . 'facebook',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
+			'class' => ''
+		);
+
 		$fields[] = array(
 			'id' => $this->prefix . 'fb_app_id',
 			'title' => 'App ID',
@@ -304,12 +320,28 @@ class IM_Aggregator {
 		$fields[] = array(
 			'id' => $this->prefix . '_featured_enabled',
 			'title' => 'Save media as Featured Image',
-			'callback' => array($this, 'featured_image'),
+			'callback' => array($this, 'render_field'),
 			'page' => 'twitter_page',
 			'section' => $this->prefix . 'twitter',
 			'desc' => 'Enable',
 			'type' => 'checkbox',
 			'default_value' => '',
+			'class' => ''
+		);
+
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'twitter_page',
+			'section' => $this->prefix . 'twitter',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
 			'class' => ''
 		);
 
@@ -391,12 +423,28 @@ class IM_Aggregator {
 		$fields[] = array(
 			'id' => $this->prefix . '_featured_enabled',
 			'title' => 'Save media as Featured Image',
-			'callback' => array($this, 'featured_image'),
+			'callback' => array($this, 'render_field'),
 			'page' => 'instagram_page',
 			'section' => $this->prefix . 'instagram',
 			'desc' => 'Enable',
 			'type' => 'checkbox',
 			'default_value' => '',
+			'class' => ''
+		);
+
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'instagram_page',
+			'section' => $this->prefix . 'instagram',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
 			'class' => ''
 		);
 
@@ -438,6 +486,39 @@ class IM_Aggregator {
 			'class' => ''
 		);
 
+
+
+
+		$fields[] = array(
+			'id' => $this->prefix . '_featured_enabled',
+			'title' => 'Save media as Featured Image',
+			'callback' => array($this, 'render_field'),
+			'page' => 'youtube_page',
+			'section' => $this->prefix . 'youtube',
+			'desc' => 'Enable',
+			'type' => 'checkbox',
+			'default_value' => '',
+			'class' => ''
+		);
+
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'youtube_page',
+			'section' => $this->prefix . 'youtube',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
+			'class' => ''
+		);
+
+
+
 		$fields[] = array(
 			'id' => $this->prefix . 'yt_username',
 			'title' => 'User Name',
@@ -462,6 +543,40 @@ class IM_Aggregator {
 			'default_value' => '',
 			'class' => ''
 		);
+
+
+
+
+		$fields[] = array(
+			'id' => $this->prefix . '_featured_enabled',
+			'title' => 'Save media as Featured Image',
+			'callback' => array($this, 'render_field'),
+			'page' => 'vimeo_page',
+			'section' => $this->prefix . 'vimeo',
+			'desc' => 'Enable',
+			'type' => 'checkbox',
+			'default_value' => '',
+			'class' => ''
+		);
+
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'vimeo_page',
+			'section' => $this->prefix . 'vimeo',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
+			'class' => ''
+		);
+
+
+
 
 		$fields[] = array(
 			'id' => $this->prefix . 'vim_username',
@@ -488,6 +603,23 @@ class IM_Aggregator {
 			'class' => ''
 		);
 
+
+		$fields[] = array(
+			'id' => $this->prefix . 'post_status',
+			'title' => 'New post status',
+			'callback' => array($this, 'render_field'),
+			'page' => 'rss_page',
+			'section' => $this->prefix . 'rss',
+			'label' => 'Post type',
+			'required' => true,
+			'desc' => 'New post status',
+			'type' => 'select',
+			'options' => array( 'publish', 'pending' ),
+			'default_value' => 'pending',
+			'class' => ''
+		);
+
+
 		$fields[] = array(
 			'id' => $this->prefix . 'rss_url',
 			'title' => 'URL',
@@ -512,6 +644,7 @@ class IM_Aggregator {
 			'page' => $page,
 			'type' => $type,
 			'desc' => $desc,
+			'items' => @$options,
 			'default_value' => $default_value,
 			'class' => $class
 		);
@@ -541,6 +674,14 @@ class IM_Aggregator {
 				break;
 			case 'button':
 				$html .= 'test';
+				break;
+			case 'select':
+				$html .= '<select id="' . $id . '"  name="' . $page . '[' . $id . ']" >';
+				foreach($items as $item) {
+					$selected = (@$options[$this->prefix . 'post_status']==$item) ? 'selected="selected"' : '';
+					$html .='<option value="'.$item.'" '.$selected.'>'.$item.'</option>';
+				}
+				$html .= '</select>';
 				break;
 			default:
 				# code...
@@ -810,10 +951,17 @@ class IM_Aggregator {
 				// $description = empty($post['description']) ? $title : $post['description'];
 				$description = empty($post['description']) ? $post['message'] : $post['description'];
 
+				
+				if(@$options[$this->prefix . 'post_status'] && trim($options[$this->prefix . 'post_status'])!=""){
+					$post_status = $options[$this->prefix . 'post_status'];
+				} else {
+					$post_status = 'publish';
+				}
+
 				$p = array(
 					'post_title' => $title,
 					'post_content' => $description,
-					'post_status' => 'publish',
+					'post_status' => $post_status,
 					'post_type' => $this->post_type,
 					'post_date' => date('Y-m-d H:i:s', $post['date_created']),
 				);

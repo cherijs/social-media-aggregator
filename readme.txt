@@ -1,11 +1,12 @@
 === Plugin Name ===
-Contributors: ryac
+Contributors: ryac, cherijs
 Author: Invoke Media
+Modified by: Artūrs Gulbis
 Donate link: http://www.redcross.ca/donate
 Tags: social media, social feed aggregation
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 1.2
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -113,3 +114,14 @@ Tested plugin with WordPress 4.0, updated version numbers to match stable tag.
 
 = 1.2 =
 Only matching versions across SVN tags and plugin version.
+
+= 1.3 =
+* Add supurt for pagination get_feeds ($feeds, $group=true, $posts_per_page=-1, $page=1)
+* Added date field
+* Add $group variable true/false for returning grouped by source or all in one array ordered by date
+
+= 1.4 =
+* Added otion to Save media as Featured Image for FB, Instagram , Twitter
+
+= 1.5 =
+* Post status option per social feed
