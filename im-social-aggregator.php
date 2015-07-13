@@ -4,7 +4,7 @@
 Plugin Name: Social Media Aggregator
 Plugin URI: http://www.invokemedia.com
 Description: Aggregates social feeds from Facebook, Twitter, Instagram, YouTube, Vimeo, and RSS.
-Version: 1.3
+Version: 1.4
 Author: Invoke Media
 Author URI: http://www.invokemedia.com
 */
@@ -240,6 +240,18 @@ class IM_Aggregator {
 		);
 
 		$fields[] = array(
+			'id' => $this->prefix . '_featured_enabled',
+			'title' => 'Save media as Featured Image',
+			'callback' => array($this, 'featured_image'),
+			'page' => 'facebook_page',
+			'section' => $this->prefix . 'facebook',
+			'desc' => 'Enable',
+			'type' => 'checkbox',
+			'default_value' => '',
+			'class' => ''
+		);
+
+		$fields[] = array(
 			'id' => $this->prefix . 'fb_app_id',
 			'title' => 'App ID',
 			'callback' => array($this, 'render_field'),
@@ -283,6 +295,19 @@ class IM_Aggregator {
 			'page' => 'twitter_page',
 			'section' => $this->prefix . 'twitter',
 			'desc' => 'Enable Twitter',
+			'type' => 'checkbox',
+			'default_value' => '',
+			'class' => ''
+		);
+
+
+		$fields[] = array(
+			'id' => $this->prefix . '_featured_enabled',
+			'title' => 'Save media as Featured Image',
+			'callback' => array($this, 'featured_image'),
+			'page' => 'twitter_page',
+			'section' => $this->prefix . 'twitter',
+			'desc' => 'Enable',
 			'type' => 'checkbox',
 			'default_value' => '',
 			'class' => ''
@@ -360,6 +385,21 @@ class IM_Aggregator {
 			'default_value' => '',
 			'class' => ''
 		);
+
+
+
+		$fields[] = array(
+			'id' => $this->prefix . '_featured_enabled',
+			'title' => 'Save media as Featured Image',
+			'callback' => array($this, 'featured_image'),
+			'page' => 'instagram_page',
+			'section' => $this->prefix . 'instagram',
+			'desc' => 'Enable',
+			'type' => 'checkbox',
+			'default_value' => '',
+			'class' => ''
+		);
+
 
 		$fields[] = array(
 			'id' => $this->prefix . 'insta_access_token',
@@ -713,6 +753,36 @@ class IM_Aggregator {
 		return false;
 	}
 
+
+	private function sa_upload_image($url, $post_id, $title, $set_thumb = true) {
+	    require_once (ABSPATH . '/wp-admin/includes/file.php');
+	    require_once (ABSPATH . '/wp-admin/includes/media.php');
+	    require_once (ABSPATH . '/wp-admin/includes/image.php');
+
+	    if ($url !== ''):
+	        $tmp = download_url($url);
+	        preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $url, $matches);
+	        $file_array['name'] = basename($matches[0]);
+	        $file_array['tmp_name'] = $tmp;
+	        if (is_wp_error($tmp)):
+	            @unlink($file_array['tmp_name']);
+	            $file_array['tmp_name'] = '';
+	            return 'error';
+	        endif;
+	        $photo_id = media_handle_sideload($file_array, $post_id, $title);
+	        if (is_wp_error($photo_id)):
+	            @unlink($file_array['tmp_name']);
+	            return 'error';
+	        endif;
+	        if ($set_thumb == true) {
+	            set_post_thumbnail($post_id, $photo_id);
+	        }
+
+	        return wp_get_attachment_url($photo_id);
+	    endif;
+	}
+
+
 	private function save_feed_items ($res, $section) {
 		if (isset($res['error'])) {
 			$this->log ($res['message']);
@@ -723,6 +793,9 @@ class IM_Aggregator {
 			// update the since time..
 			$options = get_option($section['page']);
 			$options[$this->prefix . 'since_time'] = $res['since_time'];
+
+	
+
 			update_option($section['page'], $options);
 
 			foreach ($res['data'] as $post) {
@@ -755,7 +828,15 @@ class IM_Aggregator {
 
 				// some social feeds may or may not have these fields..
 				// if (isset($post['pub_date'])) update_post_meta($postId, $this->prefix . 'pub_date', $this->validateString($post['pub_date']));
-				if (isset($post['picture'])) update_post_meta($postId, $this->prefix . 'picture', $this->validateString($post['picture']));
+				if (isset($post['picture'])) {
+					update_post_meta($postId, $this->prefix . 'picture', $this->validateString($post['picture']));
+					if (isset($options[$this->prefix . '_featured_enabled'])) {
+						$photoURL = $this->sa_upload_image($post['picture'], $postId, $title, true);
+						if ($photoURL !== 'error'){
+						    update_post_meta($postId, 'local_picture', $photoURL);
+						}
+					}
+				};
 				if (isset($post['author'])) update_post_meta($postId, $this->prefix . 'author', $this->validateString($post['author']));
 
 				// if it's a video feed.. (youTube, vimeo)
